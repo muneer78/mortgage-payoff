@@ -11,8 +11,8 @@ for x in range(1000):
         interest = 0.04125
         years = 1
         payments_year = 12
-        mortgage = 35763.56
-        start_date=(date(2023, 4, 1))
+        mortgage = 26239.82
+        start_date=(date(2023, 5, 1))
 
         #initial_pmt = -1 * npf.pmt(interest / 12, years * payments_year, mortgage)
         initial_pmt = 965.99
@@ -100,10 +100,26 @@ finaldf.to_csv('allruns.csv')
 
 df = pd.read_csv('allruns.csv')
 
-df2=[]
-df2=df['Payment Date'].value_counts()
+df2 = []
+df2 = df['Payment Date'].value_counts()
 
-df2.to_csv('payofftotals.csv')
+df = df.assign(PayoffAmount=df['Ending Balance'].astype(str).str[:2])
+# df = df.assign(PayoffAmount=df['Ending Balance'].str[:2])
+# df['PayoffAmount'] = df['Ending Balance'].astype(str).str[:2].astype(int)
+df3 = df.groupby('PayoffAmount').count()
+# Select the columns that you want to drop
+columns_to_drop = ['Payment Date', 'Ending Balance']
+
+# Drop the selected columns
+df3 = df3.drop(columns_to_drop, axis=1)
+df3.rename(columns={'Unnamed: 0': 'Count'})
+print(df3)
+
+list_of_dfs = [df2, df3]
+with open('payoffanalytics.csv','w+', nrows=None) as f:
+    for df in list_of_dfs:
+        df.to_csv(f, index=True)
+        f.write("\n")
 
 plt.figure()
 plt.xticks(rotation=180)
